@@ -1,11 +1,9 @@
-npm i express
-npm i pg-promise
-npm i body-parser
-npm i cookie-parser
-npm i crypto
-npm i cors
-npm i jsonwebtoken
+# ติดตั้ง Library ทั้งหมด
+npm i express pg-promise body-parser cookie-parser crypto cors jsonwebtoken
+์npm i -g nodemon
 
+# กำหนดค่าการเชื่อมต่อกับ PostgreSQL
+const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
 
 # Create Table member
 
