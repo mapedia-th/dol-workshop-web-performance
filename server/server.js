@@ -22,8 +22,6 @@ app.use(cookieParser());
 
 const port = process.env.PORT || 3000;
 
-const secretKey = 'Hkq8jmLZM74Ywvub6X2xVU';
-
 // กำหนดค่าการเชื่อมต่อกับ PostgreSQL
 const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
 
