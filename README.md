@@ -1,10 +1,4 @@
-npm i express
-npm i pg-promise
-npm i body-parser
-npm i cookie-parser
-npm i crypto
-npm i cors
-npm i jsonwebtoken
+npm i express pg-promise body-parser cookie-parser crypto cors jsonwebtoken
 npm i -g nodemon
 
 # Create Table member
@@ -258,5 +252,18 @@ app.post('/remove_member', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error.' });
     }
 });
+
+# Add sample user
+INSERT INTO public.member(username, password, first_name, last_name, email, role)
+VALUES
+    ('Thana', 'password', 'Thana', 'Maturod', 'Thana.M@gmail.com', 'user'),
+    ('Mati', 'password', 'Mati', 'Sutwilai', 'Mati.S@gmail.com', 'user'),
+    ('Korawich', 'password', 'Korawich', 'Prempree', 'Korawich.P@gmail.com', 'user'),
+    ('Uthaiwit', 'password', 'Uthaiwit', 'Sumsap', 'Uthaiwit.S@gmail.com', 'user'),
+    ('Natchanon', 'password', 'Natchanon', 'Rompho', 'Natchanon.R@gmail.com', 'user');
+
+# Add Sweatalret2 to index.html
+<!-- sweetalert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 

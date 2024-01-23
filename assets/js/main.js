@@ -144,7 +144,12 @@ async function loginUser(username, password) {
       const responseData = await response.json();
       window.location.href = "index.html";
       localStorage.setItem('user_data', JSON.stringify(responseData));
-      alert('เข้าสู่ระบบเรียบร้อยแล้ว');
+      // alert('เข้าสู่ระบบเรียบร้อยแล้ว');
+      Swal.fire({
+        title: 'เข้าสู่ระบบเรียบร้อยแล้ว',
+        icon: 'success',
+        timer: '1500'
+      });
     } else {
       // Login failed
       const errorMessage = await response.text();
