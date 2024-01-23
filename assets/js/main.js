@@ -1,10 +1,10 @@
 
 // Check if the current URL is login.html
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   if (window.location.href.endsWith('login.html')) {
     // Clear localStorage
     localStorage.clear();
-  } else if (window.location.href.endsWith('index.html') || window.location.href.endsWith('/') || window.location.href.endsWith('/home.html')) {
+  } else if (window.location.href.endsWith('index.html') || window.location.href.endsWith('/') || window.location.href.endsWith('/settings.html')) {
 
     if (!localStorage.getItem('user_data')) {
       window.location.href = "login.html";
@@ -15,31 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const userRole = document.getElementById('userRole');
 
       const user = JSON.parse(localStorage.getItem('user_data'));
-      // Check if the user exists and has not been redirected
-      if (user && user.role !== 'superadmin' && !localStorage.getItem('redirected')) {
-        // Set a flag to indicate that redirection has been done
-        localStorage.setItem('redirected', 'true');
-
-        // Redirect to index.html
-        window.location.href = 'index.html';
-      }
-      // if (user.role != 'superadmin') {
-      //   window.location.href = "/"
-      // }
 
       userSpan.textContent = `${user.first_name} ${user.last_name}`;
       // Remove the 'd-none' class to make it visible
       userSpan.classList.remove('d-none');
       userFullName.textContent = `${user.first_name} ${user.last_name}`;
       userRole.textContent = user.role;
-    }
 
-    // Fetch data from the API endpoint
-    fetch('http://localhost:3000/allmember')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        // Check if data is not empty
+      const response = await fetch('http://localhost:3000/allmember', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${user.token}`
+        }
+      });
+
+      await response.json().then((data) => {
         if (data && data.length > 0) {
           // Call function to render data in HTML table
           renderTable(data);
@@ -48,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('No members found.');
         }
       })
-      .catch(error => console.error('Error:', error));
+    }
   }
 });
 
@@ -160,7 +151,7 @@ async function loginUser(username, password) {
     }
 
     // Login successful
-    
+
     Swal.fire({
       title: 'ลงชื่อเข้าใช้งานสำเร็จ',
       icon: 'success',
@@ -168,11 +159,11 @@ async function loginUser(username, password) {
       showConfirmButton: false
     })
 
-    const responseData = await response.json();    
+    const responseData = await response.json();
     localStorage.setItem('user_data', JSON.stringify(responseData))
-    setTimeout(()=>{
+    setTimeout(() => {
       window.location.href = "index.html";
-    },2000)
+    }, 2000)
     return responseData;
   } catch (error) {
     console.error('Error during login:', error.message);
@@ -203,7 +194,7 @@ function renderTable(data) {
     removeButton.textContent = 'ลบข้อมูล';
     // Add classes to the button
     removeButton.classList.add('btn', 'btn-danger');
-    removeButton.addEventListener('click', () => handleRemoveClick(member.id)); // Assuming you have an 'id' property in your member data
+    removeButton.addEventListener('click', () => handleRemoveClick(member)); // Assuming you have an 'id' property in your member data
 
 
     // Append the button to the cell
@@ -211,49 +202,93 @@ function renderTable(data) {
   });
 }
 
-function handleRemoveClick(memberId) {
-  // Implement the logic to handle the removal of the member with the specified memberId
-  // You can make another API request to handle the removal on the server side
-  // After removal, you may want to update the table or take other actions
-  console.log('Remove button clicked for member with ID:', memberId);
+async function handleRemoveClick(member) {
+  const user = JSON.parse(localStorage.getItem('user_data'));
+  Swal.fire({
+    title: `ลบข้อมูลผู้ใช้ ${member.first_name} ${member.last_name} ?`,
+    icon: "question",
+    showCancelButton: true,
+    // confirmButtonColor: "#3085d6",
+    // cancelButtonColor: "#d33",
+    // confirmButtonText: "ตกลง, "
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+
+
+      try {
+
+
+        // Make a POST request to the server to remove the member
+        const response = await fetch('http://localhost:3000/remove_member', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${user.token}`
+          },
+          body: JSON.stringify({ id: member.id }),
+        });
+
+        if (!response.ok) {
+          Swal.fire({
+            title: `ไม่สามารถลบข้อมูลได้`,
+            icon: "error",
+            timer: 1500
+          });
+        }
+
+
+
+        Swal.fire({
+          title: `ลบข้อมูลผู้ใช้ ${member.first_name} ${member.last_name} เรียบร้อยแล้ว`,
+          icon: "success",
+          timer: 1500
+        });
+
+        setTimeout(()=>{
+          location.reload();
+        },1500)
+      } catch (error) {
+        console.error('Error removing member:', error.message);
+      }
+    }
+  });
 }
 
+(function () {
 
-// (function () {
+  const select = (el, all = false) => {
+    el = el.trim()
+    if (all) {
+      return [...document.querySelectorAll(el)]
+    } else {
+      return document.querySelector(el)
+    }
+  }
 
-//   const select = (el, all = false) => {
-//     el = el.trim()
-//     if (all) {
-//       return [...document.querySelectorAll(el)]
-//     } else {
-//       return document.querySelector(el)
-//     }
-//   }
+  const on = (type, el, listener, all = false) => {
+    if (all) {
+      select(el, all).forEach(e => e.addEventListener(type, listener))
+    } else {
+      select(el, all).addEventListener(type, listener)
+    }
+  }
 
-//   const on = (type, el, listener, all = false) => {
-//     if (all) {
-//       select(el, all).forEach(e => e.addEventListener(type, listener))
-//     } else {
-//       select(el, all).addEventListener(type, listener)
-//     }
-//   }
+  if (select('.toggle-sidebar-btn')) {
+    on('click', '.toggle-sidebar-btn', function (e) {
+      select('body').classList.toggle('toggle-sidebar')
+    })
+  }
 
-//   if (select('.toggle-sidebar-btn')) {
-//     on('click', '.toggle-sidebar-btn', function (e) {
-//       select('body').classList.toggle('toggle-sidebar')
-//     })
-//   }
-
-//   const mainContainer = select('#main');
-//   if (mainContainer) {
-//     setTimeout(() => {
-//       new ResizeObserver(function () {
-//         select('.echart', true).forEach(getEchart => {
-//           echarts.getInstanceByDom(getEchart).resize();
-//         })
-//       }).observe(mainContainer);
-//     }, 200);
-//   }
-// })();
+  const mainContainer = select('#main');
+  if (mainContainer) {
+    setTimeout(() => {
+      new ResizeObserver(function () {
+        select('.echart', true).forEach(getEchart => {
+          echarts.getInstanceByDom(getEchart).resize();
+        })
+      }).observe(mainContainer);
+    }, 200);
+  }
+})();
 
 

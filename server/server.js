@@ -25,6 +25,8 @@ const port = process.env.PORT || 3000;
 // กำหนดค่าการเชื่อมต่อกับ PostgreSQL
 const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
 
+const secretKey = 'Hkq8jmLZM74Ywvub6X2xVU';
+
 // Middleware to verify the JWT token
 const verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
@@ -83,9 +85,8 @@ app.post('/login', async (req, res) => {
 
         // Check if the user is found
         if (result) {
-            // const token = jwt.sign(result, secretKey, { expiresIn: '1h' });
-            // result.token = token
-            // console.log(token);
+            const token = jwt.sign(result, secretKey, { expiresIn: '1h' });
+            result.token = token
             res.status(200).json(result);
         }else{
             res.status(500).json({ error: 'Invaid Username Password' });
@@ -114,7 +115,7 @@ app.post('/remove_member', verifyToken, async (req, res) => {
 });
 
 // Route for handling get requests to remove a member
-app.get('/allmember', async (req, res) => {
+app.get('/allmember',verifyToken, async (req, res) => {
     try {
         // Perform the database query to remove a member
         const result = await db.manyOrNone('SELECT id,first_name, last_name, email, role FROM member Where role != $1',['superadmin']);
