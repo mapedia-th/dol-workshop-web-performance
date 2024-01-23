@@ -55,33 +55,37 @@ app.post('/register', async (req, res) => {
     }
 });
 
-# Write Node API Check login 
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        // Extract data from the request body
-        const { username, password } = req.body;
+# Create Function addMember()
+async function addMember(memberData) {
+  const apiUrl = 'http://localhost:3000/register'; // Replace with your actual API endpoint
 
-        // Perform the database query using pg-promise
-        const result = await db.oneOrNone('SELECT first_name, last_name, email, role FROM member WHERE username = $1 AND password = $2', [username, password]);
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // You may need to include additional headers like authorization if required
+      },
+      body: JSON.stringify(memberData),
+    });
 
-        // Check if the user is found
-        if (result) {
-            // User found, send user data as JSON response
-
-            const token = jwt.sign({ username: username, password: password }, secretKey, { expiresIn: '1h' });
-            result.token = token;
-            res.status(200).json(result);
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Invaid Username Password' });
+    if (!response.ok) {
+      // Handle error responses
+      const errorMessage = await response.text();
+      throw new Error(`Failed to register member: ${errorMessage}`);
     }
-});
 
+    // Registration successful
+    const responseData = await response.json();
+    console.log('Member registered successfully:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error during member registration:', error.message);
+    throw error;
+  }
+}
 
 # Create Function registerMember()
-
-
 function registerMember() {
   var username = document.getElementById("username").value;
   var password = document.getElementById("password").value;
@@ -111,6 +115,27 @@ function registerMember() {
   }
 }
 
+# Write Node API Check login 
+app.post('/login', async (req, res) => {
+    try {
+        // Extract data from the request body
+        const { username, password } = req.body;
+
+        // Perform the database query using pg-promise
+        const result = await db.oneOrNone('SELECT first_name, last_name, email, role FROM member WHERE username = $1 AND password = $2', [username, password]);
+
+        // Check if the user is found
+        if (result) {
+            // User found, send user data as JSON response
+
+            const token = jwt.sign({ username: username, password: password }, secretKey, { expiresIn: '1h' });
+            result.token = token;
+            res.status(200).json(result);
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Invaid Username Password' });
+    }
+});
 
 # Create Function loginUser
 async function loginUser(username, password) {
@@ -180,6 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+# สร้าง Function logout 
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html"
+}
 
 # import lib  & setting Node js
 const express = require('express');
