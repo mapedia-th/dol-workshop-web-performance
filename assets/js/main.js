@@ -1,27 +1,56 @@
+
 // Check if the current URL is login.html
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.href.endsWith('login.html')) {
     // Clear localStorage
     localStorage.clear();
-  } else if (window.location.href.endsWith('index.html') || window.location.href.endsWith('/')) {
+  } else if (window.location.href.endsWith('index.html') || window.location.href.endsWith('/') || window.location.href.endsWith('/home.html')) {
+
     if (!localStorage.getItem('user_data')) {
       window.location.href = "login.html";
     } else {
+
       const userSpan = document.getElementById('userSpan');
       const userFullName = document.getElementById('userFullName');
       const userRole = document.getElementById('userRole');
 
       const user = JSON.parse(localStorage.getItem('user_data'));
+      // Check if the user exists and has not been redirected
+      if (user && user.role !== 'superadmin' && !localStorage.getItem('redirected')) {
+        // Set a flag to indicate that redirection has been done
+        localStorage.setItem('redirected', 'true');
+
+        // Redirect to index.html
+        window.location.href = 'index.html';
+      }
+      // if (user.role != 'superadmin') {
+      //   window.location.href = "/"
+      // }
+
       userSpan.textContent = `${user.first_name} ${user.last_name}`;
       // Remove the 'd-none' class to make it visible
       userSpan.classList.remove('d-none');
       userFullName.textContent = `${user.first_name} ${user.last_name}`;
       userRole.textContent = user.role;
     }
+
+    // Fetch data from the API endpoint
+    fetch('http://localhost:3000/allmember')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        // Check if data is not empty
+        if (data && data.length > 0) {
+          // Call function to render data in HTML table
+          renderTable(data);
+        } else {
+          // Handle case where no members are found
+          console.log('No members found.');
+        }
+      })
+      .catch(error => console.error('Error:', error));
   }
 });
-
-
 
 function attemptLogin() {
   var username = document.getElementById("username").value;
@@ -126,6 +155,44 @@ async function loginUser(username, password) {
     alert('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่อีกครั้ง');
     console.error('Error during login:', error.message);
   }
+}
+
+function renderTable(data) {
+  // Get table body element
+  const tableBody = document.querySelector('#membersTable tbody');
+
+  // Iterate through each member and create a table row
+  data.forEach(member => {
+    const row = tableBody.insertRow();
+    const cell1 = row.insertCell(0);
+    const cell2 = row.insertCell(1);
+    const cell3 = row.insertCell(2);
+    const cell4 = row.insertCell(3);
+    const cell5 = row.insertCell(4);
+
+    // Fill the cells with member data
+    cell1.textContent = member.first_name;
+    cell2.textContent = member.last_name;
+    cell3.textContent = member.email;
+    cell4.textContent = member.role;
+    // Create a button for removal
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'ลบข้อมูล';
+    // Add classes to the button
+    removeButton.classList.add('btn', 'btn-danger');
+    removeButton.addEventListener('click', () => handleRemoveClick(member.id)); // Assuming you have an 'id' property in your member data
+
+
+    // Append the button to the cell
+    cell5.appendChild(removeButton);
+  });
+}
+
+function handleRemoveClick(memberId) {
+  // Implement the logic to handle the removal of the member with the specified memberId
+  // You can make another API request to handle the removal on the server side
+  // After removal, you may want to update the table or take other actions
+  console.log('Remove button clicked for member with ID:', memberId);
 }
 
 

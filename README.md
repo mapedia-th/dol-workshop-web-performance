@@ -5,7 +5,7 @@ npm i cookie-parser
 npm i crypto
 npm i cors
 npm i jsonwebtoken
-
+npm i -g nodemon
 
 # Create Table member
 

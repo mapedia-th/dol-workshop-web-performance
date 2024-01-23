@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
 const secretKey = 'Hkq8jmLZM74Ywvub6X2xVU';
 
 // กำหนดค่าการเชื่อมต่อกับ PostgreSQL
-const db = pgp('postgres://postgres:postgres@localhost:5436/geodb');
+const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
 
 // Middleware to verify the JWT token
 const verifyToken = (req, res, next) => {
@@ -107,6 +107,21 @@ app.post('/remove_member', verifyToken, async (req, res) => {
             res.status(200).json({ message: 'Member removed successfully.' });
         } else {
             res.status(404).json({ error: 'Member not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error.' });
+    }
+});
+
+// Route for handling get requests to remove a member
+app.get('/allmember', async (req, res) => {
+    try {
+        // Perform the database query to remove a member
+        const result = await db.manyOrNone('SELECT id,first_name, last_name, email, role FROM member Where role != $1',['superadmin']);
+
+        // Check if the user is found
+        if (result) {
+            res.status(200).json(result);
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error.' });
