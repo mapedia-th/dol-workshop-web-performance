@@ -65,7 +65,15 @@ function attemptLogin() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = "login.html"
+  Swal.fire({
+    title: 'ออกจากระบบเรียบร้อยแล้ว',
+    icon: 'success',
+    timer: 1500,
+    showConfirmButton: false
+  })
+  setTimeout(() => {
+    window.location.href = "login.html"
+  }, 2000);
 }
 
 function registerMember() {
@@ -139,26 +147,36 @@ async function loginUser(username, password) {
       body: JSON.stringify({ username, password }),
     });
 
-    if (response.ok) {
-      // Login successful
-      const responseData = await response.json();
-      window.location.href = "index.html";
-      localStorage.setItem('user_data', JSON.stringify(responseData));
-      // alert('เข้าสู่ระบบเรียบร้อยแล้ว');
-      Swal.fire({
-        title: 'เข้าสู่ระบบเรียบร้อยแล้ว',
-        icon: 'success',
-        timer: '1500'
-      });
-    } else {
-      // Login failed
+    if (!response.ok) {
+      // Handle error responses
       const errorMessage = await response.text();
-      alert(`ไม่สามารถเข้าสู่ระบบได้: ${errorMessage}`);
+      Swal.fire({
+        title: 'ไม่สามารถเข้าสู้ระบบได้',
+        icon: 'error',
+        timer: 1500,
+        showConfirmButton: false
+      })
+      throw new Error(`Failed to login: ${errorMessage}`);
     }
+
+    // Login successful
+    
+    Swal.fire({
+      title: 'ลงชื่อเข้าใช้งานสำเร็จ',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+
+    const responseData = await response.json();    
+    localStorage.setItem('user_data', JSON.stringify(responseData))
+    setTimeout(()=>{
+      window.location.href = "index.html";
+    },2000)
+    return responseData;
   } catch (error) {
-    // Handle other errors (e.g., network issues)
-    alert('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่อีกครั้ง');
     console.error('Error during login:', error.message);
+    throw error;
   }
 }
 

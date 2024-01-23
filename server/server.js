@@ -83,10 +83,12 @@ app.post('/login', async (req, res) => {
 
         // Check if the user is found
         if (result) {
-            const token = jwt.sign(result, secretKey, { expiresIn: '1h' });
-            result.token = token
-            console.log(token);
+            // const token = jwt.sign(result, secretKey, { expiresIn: '1h' });
+            // result.token = token
+            // console.log(token);
             res.status(200).json(result);
+        }else{
+            res.status(500).json({ error: 'Invaid Username Password' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Invaid Username Password' });
