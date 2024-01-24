@@ -288,4 +288,17 @@ app.post('/remove_member', verifyToken, async (req, res) => {
     }
 });
 
+# Add sample user
+INSERT INTO public.member(username, password, first_name, last_name, email, role)
+VALUES
+    ('Thana', 'password', 'Thana', 'Maturod', 'Thana.M@gmail.com', 'user'),
+    ('Mati', 'password', 'Mati', 'Sutwilai', 'Mati.S@gmail.com', 'user'),
+    ('Korawich', 'password', 'Korawich', 'Prempree', 'Korawich.P@gmail.com', 'user'),
+    ('Uthaiwit', 'password', 'Uthaiwit', 'Sumsap', 'Uthaiwit.S@gmail.com', 'user'),
+    ('Natchanon', 'password', 'Natchanon', 'Rompho', 'Natchanon.R@gmail.com', 'user');
+
+# Add Sweatalret2 to index.html
+<!-- sweetalert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
