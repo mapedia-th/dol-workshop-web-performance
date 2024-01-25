@@ -2,6 +2,9 @@
 npm i express pg-promise body-parser cookie-parser crypto cors jsonwebtoken
 ์npm i -g nodemon
 
+# แก้ ใช้ nodemon ไม่ได้
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
 # กำหนดค่าการเชื่อมต่อกับ PostgreSQL
 const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
 
@@ -122,20 +125,19 @@ app.post('/login', async (req, res) => {
         const { username, password } = req.body;
 
         // Perform the database query using pg-promise
-        const result = await db.oneOrNone('SELECT first_name, last_name, email, role FROM member WHERE username = $1 AND password = $2', [username, password]);
+        const result = await db.query('SELECT first_name, last_name, email, role FROM member WHERE username = $1 AND password = $2', [username, password]);
 
         // Check if the user is found
         if (result) {
-            // User found, send user data as JSON response
-
-            const token = jwt.sign({ username: username, password: password }, secretKey, { expiresIn: '1h' });
-            result.token = token;
-            res.status(200).json(result);
+            // const token = jwt.sign({ username: username, password: password }, secretKey, { expiresIn: '1h' });
+            // result.token = token;
+            res.status(200).json(result.rows);
         }
     } catch (error) {
         res.status(500).json({ error: 'Invaid Username Password' });
     }
 });
+
 
 # Create Function loginUser
 async function loginUser(username, password) {
