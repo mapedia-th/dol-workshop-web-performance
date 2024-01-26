@@ -113,52 +113,10 @@
         });
 
         // TODO 3 : Add Vector tile from External GeoServer TMS
-        map.addLayer({
-          id: "vtLayer",
-          type: "fill",
-          source: {
-            type: "vector",
-            tiles: [
-              "https://ahocevar.com/geoserver/gwc/service/tms/1.0.0/ne:ne_10m_admin_0_countries@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf",
-            ],
-            minzoom: 0,
-            maxzoom: 15,
-            scheme: "tms",
-          },
-          "source-layer": "ne_10m_admin_0_countries", // Replace with your actual source layer name
-          paint: {
-            "fill-color": "rgba(255, 0, 0, 0.1)",
-            "fill-outline-color": "rgba(255, 0, 0, 1)",
-          },
-        });
 
         // TODO 4 : Add Vector tile from External GeoServer WMTS
 
-
         // TODO 5 : Add Vector tile from Local GeoServer TMS
-        map.addLayer({
-          id: "bokdin",
-          type: "circle",
-          source: {
-            type: "vector",
-            tiles: [
-              "http://localhost:8080/geoserver/gwc/service/tms/1.0.0/gisdata:dol_bokdin@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf",
-            ],
-            minzoom: 0,
-            maxzoom: 20,
-            scheme: "tms",
-          },
-          "source-layer": "dol_bokdin", // Replace with your actual source layer name
-          paint: {
-            "circle-blur": 0,
-            "circle-color": "#5D6D7E",
-            "circle-opacity": 0.9,
-            "circle-radius": 4.5,
-            "circle-stroke-color": "#2E4053",
-            "circle-stroke-opacity": 0.9,
-            "circle-stroke-width": 1,
-          },
-        });
 
         // TODO 6 :Popup Info
         map.on("click", "ll_nsl", (e) => {
