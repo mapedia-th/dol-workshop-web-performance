@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Maplibre add vector tile source</title>
+    <meta property="og:description" content="Add a vector source to a map." />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
+    />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body,
+      #map {
+        height: 100%;
+      }
+
+      .map-overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div class="map-overlay">
+      <button onclick="toggleLayerVisibility()" type="button">NSL</button>
+      <button onclick="toggleLayerParcel()" type="button">ALRO</button>
+    </div>
+
+    <script>
+      const map = new maplibregl.Map({
+        container: "map",
+        style:
+          "https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+        zoom: 5, // Adjust the zoom level as needed
+        center: [100.51, 13.75], // Set the center to Bangkok, Thailand
+      });
+
+      map.on("load", () => {
+        map.addSource("ll_nsl", {
+          type: "vector",
+          tiles: ["http://lpc.dol.go.th:8507/data/ll_nsl/{z}/{x}/{y}.pbf"],
+          minzoom: 0,
+          maxzoom: 14,
+        });
+
+        map.addLayer({
+          id: "ll_nsl",
+          type: "fill",
+          source: "ll_nsl",
+          "source-layer": "ll_nsl",
+          paint: {
+            "fill-color": "rgba(8, 250, 76, 0.8)",
+            "fill-outline-color": "rgba(7, 91, 31, 0.8)",
+          },
+        });
+
+        map.addSource("vector-tile-layer", {
+          type: "vector",
+          tiles: [
+            "https://gisportal.alro.go.th/arcgis/rest/services/Hosted/%E0%B9%81%E0%B8%9B%E0%B8%A5%E0%B8%87%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%94%E0%B8%B4%E0%B8%99_Tile/VectorTileServer/tile/{z}/{y}/{x}.pbf",
+          ],
+          minzoom: 0,
+          maxzoom: 20,
+        });
+
+        map.addLayer({
+          id: "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266/0",
+          type: "line",
+          source: "vector-tile-layer",
+          "source-layer": "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266",
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": "#FF0000",
+            "line-width": 0.933333,
+          },
+        });
+
+        map.addLayer({
+          id: "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266/label/Class 1",
+          type: "symbol",
+          source: "vector-tile-layer",
+          "source-layer":
+            "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266/label",
+          layout: {
+            "text-font": ["Cordia New Regular"],
+            "text-size": 12,
+            "text-field": "{_name}",
+            "text-optional": true,
+          },
+          paint: {
+            "text-color": "#000000",
+          },
+        });
+
+        // map.addSource("ne_10m_admin", {
+        //   type: "vector",
+        //   tiles: [
+        //     "http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=ne:ne_10m_admin_0_countries&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}",
+        //   ],
+        //   minzoom: 0,
+        //   maxzoom: 14,
+        // });
+
+        // // https://ahocevar.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS
+        // // &VERSION=1.0.0&LAYER=ne:ne_10m_admin_0_countries&STYLE=&TILEMATRIX=EPSG:900913:{z}
+        // // &TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile
+        // // &TILECOL={x}&TILEROW={y}
+
+        // map.addLayer({
+        //   id: "ne_10m_admin",
+        //   type: "fill",
+        //   source: "ne_10m_admin",
+        //   "source-layer": "ne_10m_admin",
+        //   paint: {
+        //     "fill-color": "rgba(8, 250, 76, 0.8)",
+        //     "fill-outline-color": "rgba(7, 91, 31, 0.8)",
+        //   },
+        // });
+
+        // map.addLayer({
+        //   'id': 'vtLayer',
+        //   'type': 'fill',
+        //   'source': {
+        //     type: 'vector',
+        //     tiles: ['https://ahocevar.com/geoserver/gwc/service/tms/1.0.0/ne:ne_10m_admin_0_countries@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+        //     minzoom: 0,
+        //     maxzoom: 15,
+        //     scheme: "tms"
+        //   },
+        //   'source-layer': 'ne_10m_admin_0_countries',  // Replace with your actual source layer name
+        //   'paint': {
+        //     'fill-color': 'rgba(255, 0, 0, 0.1)',
+        //     'fill-outline-color': 'rgba(255, 0, 0, 1)'
+        //   }
+        // });
+
+        map.addLayer({
+          id: "bokdin",
+          type: "circle",
+          source: {
+            type: "vector",
+            tiles: [
+              "http://localhost:8080/geoserver/gwc/service/tms/1.0.0/gisdata:dol_bokdin@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf",
+            ],
+            minzoom: 0,
+            maxzoom: 20,
+            scheme: "tms",
+          },
+          "source-layer": "dol_bokdin", // Replace with your actual source layer name
+          paint: {
+            "circle-blur": 0,
+            "circle-color": "#5D6D7E",
+            "circle-opacity": 0.9,
+            "circle-radius": 4.5,
+            "circle-stroke-color": "#2E4053",
+            "circle-stroke-opacity": 0.9,
+            "circle-stroke-width": 1,
+          },
+        });
+
+        map.on("click", "ll_nsl", (e) => {
+          var features = e.features;
+
+          if (!features.length) {
+            return;
+          }
+          var properties = features[0].properties;
+
+          // Create a popup and set its coordinates
+          var popup = new maplibregl.Popup({
+            maxWidth: "400px",
+            maxHeight: "300px",
+            className: "custom-popup",
+          }).setLngLat(e.lngLat);
+
+          // Create a table structure in HTML
+          var popupContent = "<h3>Feature Information</h3>";
+          popupContent +=
+            '<table style="border: 1px solid black;border-collapse: collapse;">';
+          for (var key in properties) {
+            if (properties.hasOwnProperty(key)) {
+              popupContent +=
+                "<tr><td><strong>" +
+                key +
+                ":</strong></td><td>" +
+                properties[key] +
+                "</td></tr>";
+            }
+          }
+          popupContent += "</table>";
+
+          // Set the HTML content of the popup
+          popup.setHTML(popupContent);
+
+          // Add the popup to the map
+          popup.addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on("mouseenter", "vector-tile-layer", function () {
+          map.getCanvas().style.cursor = "pointer";
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on("mouseleave", "vector-tile-layer", function () {
+          map.getCanvas().style.cursor = "";
+        });
+      });
+
+      function toggleLayerVisibility() {
+        var layerId = "ll_nsl";
+        var visibility = map.getLayoutProperty(layerId, "visibility");
+
+        if (visibility === "visible") {
+          map.setLayoutProperty(layerId, "visibility", "none");
+        } else {
+          map.setLayoutProperty(layerId, "visibility", "visible");
+        }
+      }
+
+      function toggleLayerParcel() {
+        var layerId = "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266/0";
+        var visibility = map.getLayoutProperty(layerId, "visibility");
+
+        if (visibility === "visible") {
+          map.setLayoutProperty(layerId, "visibility", "none");
+        } else {
+          map.setLayoutProperty(layerId, "visibility", "visible");
+        }
+
+        var layerId =
+          "RSGIS.GISRSALRO.Parcel_Data271262_Upload060266/label/Class 1";
+        var visibility = map.getLayoutProperty(layerId, "visibility");
+
+        if (visibility === "visible") {
+          map.setLayoutProperty(layerId, "visibility", "none");
+        } else {
+          map.setLayoutProperty(layerId, "visibility", "visible");
+        }
+      }
+    </script>
+  </body>
+</html>
