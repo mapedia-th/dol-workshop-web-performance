@@ -1,5 +1,6 @@
 # ติดตั้ง Library ทั้งหมด
 npm i express pg-promise body-parser cookie-parser crypto cors jsonwebtoken
+npm i express body-parser cors process
 ์npm i -g nodemon
 
 # แก้ ใช้ nodemon ไม่ได้
@@ -7,6 +8,15 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # กำหนดค่าการเชื่อมต่อกับ PostgreSQL
 const db = pgp('postgres://postgres:postgres@localhost:5432/postgres');
+
+# set routing node 
+
+app.use('/assets', express.static(__dirname + '/assets'))
+
+app.use('/home', express.static(__dirname + '/index.html'))
+app.use('/login', express.static(__dirname + '/login.html'))
+app.use('/register', express.static(__dirname + '/register.html'))
+app.use('/sample', express.static(__dirname + '/sample.html'))
 
 # Create Table member
 

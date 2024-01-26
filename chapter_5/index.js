@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { features } = require('process');
 
-
 const app = express();
 
 app.use(cors());
